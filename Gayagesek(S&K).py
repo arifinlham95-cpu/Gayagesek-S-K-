@@ -1,4 +1,6 @@
 import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
 
 # =========================
 # FUNGSI FISIKA
@@ -10,60 +12,79 @@ def hitung_gaya(m, mu_s, mu_k, F):
 
     if F < fs_max:
         status = "Benda tidak bergerak (gaya gesek statis)"
+        gaya_gesek = F
     else:
         status = "Benda bergerak (gaya gesek kinetis)"
+        gaya_gesek = fk
 
-    return fs_max, fk, status
-
-
-# =========================
-# FUNGSI AI (PLACEHOLDER)
-# =========================
-def tanya_ai(system_prompt, user_prompt):
-    jawaban = (
-        "📘 Penjelasan AI:\n\n"
-        + system_prompt
-        + "\n\nDetail Percobaan:\n"
-        + user_prompt
-    )
-    return jawaban
+    return fs_max, fk, gaya_gesek, status
 
 
 # =========================
 # STREAMLIT UI
 # =========================
-st.title("Praktikum Online: Gaya Gesek")
+st.title("Praktikum Online: Gaya Gesek Statis dan Kinetis")
 
-m = st.number_input("Massa benda (kg)", min_value=0.0, value=2.0)
+st.markdown(
+    """
+    Aplikasi ini mensimulasikan **gaya gesek statis dan kinetis** pada sebuah benda
+    yang ditarik di atas permukaan datar.
+    """
+)
+
+# Input parameter
+m = st.number_input("Massa benda (kg)", min_value=0.1, value=2.0)
 mu_s = st.number_input("Koefisien gesek statis (μs)", min_value=0.0, value=0.5)
 mu_k = st.number_input("Koefisien gesek kinetis (μk)", min_value=0.0, value=0.3)
 F = st.number_input("Gaya tarik (N)", min_value=0.0, value=10.0)
 
-fs_max, fk, status = hitung_gaya(m, mu_s, mu_k, F)
+# Perhitungan
+fs_max, fk, gaya_gesek, status = hitung_gaya(m, mu_s, mu_k, F)
 
+# =========================
+# OUTPUT TEKS
+# =========================
 st.subheader("Hasil Perhitungan")
-st.write(f"Gaya gesek statis maksimum: {fs_max:.2f} N")
-st.write(f"Gaya gesek kinetis: {fk:.2f} N")
+st.write(f"**Gaya gesek statis maksimum (Fs max)** : {fs_max:.2f} N")
+st.write(f"**Gaya gesek kinetis (Fk)** : {fk:.2f} N")
+st.write(f"**Gaya gesek yang bekerja** : {gaya_gesek:.2f} N")
 st.info(status)
 
-pertanyaan = st.text_input("Tanyakan sesuatu tentang percobaan ini:")
+# =========================
+# GRAFIK GAYA vs GAYA TARIK
+# =========================
+st.subheader("Grafik Hubungan Gaya Tarik dan Gaya Gesek")
 
-if pertanyaan:
-    system_prompt = (
-        "Anda adalah asisten fisika yang menjelaskan konsep "
-        "gaya gesek statis dan kinetis secara sederhana."
+F_range = np.linspace(0, fs_max * 1.5, 100)
+gaya_gesek_range = []
+
+for F_i in F_range:
+    if F_i < fs_max:
+        gaya_gesek_range.append(F_i)
+    else:
+        gaya_gesek_range.append(fk)
+
+fig, ax = plt.subplots()
+ax.plot(F_range, gaya_gesek_range)
+ax.axvline(fs_max)
+ax.set_xlabel("Gaya Tarik (N)")
+ax.set_ylabel("Gaya Gesek (N)")
+ax.set_title("Gaya Gesek terhadap Gaya Tarik")
+ax.grid(True)
+
+st.pyplot(fig)
+
+# =========================
+# KESIMPULAN SINGKAT
+# =========================
+st.subheader("Kesimpulan")
+if F < fs_max:
+    st.write(
+        "Gaya tarik belum mampu mengatasi gaya gesek statis maksimum, "
+        "sehingga benda masih dalam keadaan diam."
     )
-
-    user_prompt = f"""
-Massa: {m} kg
-μs: {mu_s}
-μk: {mu_k}
-Gaya: {F} N
-Status: {status}
-
-Pertanyaan siswa:
-{pertanyaan}
-"""
-
-    jawaban = tanya_ai(system_prompt, user_prompt)
-    st.success(jawaban)
+else:
+    st.write(
+        "Gaya tarik telah melebihi gaya gesek statis maksimum, "
+        "sehingga benda bergerak dan gaya gesek yang bekerja adalah gaya gesek kinetis."
+    )
