@@ -1,6 +1,5 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
 
 # =========================
 # FUNGSI FISIKA
@@ -25,12 +24,10 @@ def hitung_gaya(m, mu_s, mu_k, F):
 # =========================
 st.title("Praktikum Online: Gaya Gesek Statis dan Kinetis")
 
-st.markdown(
-    """
-    Aplikasi ini mensimulasikan **gaya gesek statis dan kinetis** pada sebuah benda
-    yang ditarik di atas permukaan datar.
-    """
-)
+st.markdown("""
+Aplikasi ini mensimulasikan **gaya gesek statis dan kinetis**
+pada sebuah benda yang ditarik di atas permukaan datar.
+""")
 
 # Input parameter
 m = st.number_input("Massa benda (kg)", min_value=0.1, value=2.0)
@@ -45,13 +42,13 @@ fs_max, fk, gaya_gesek, status = hitung_gaya(m, mu_s, mu_k, F)
 # OUTPUT TEKS
 # =========================
 st.subheader("Hasil Perhitungan")
-st.write(f"**Gaya gesek statis maksimum (Fs max)** : {fs_max:.2f} N")
-st.write(f"**Gaya gesek kinetis (Fk)** : {fk:.2f} N")
-st.write(f"**Gaya gesek yang bekerja** : {gaya_gesek:.2f} N")
+st.write(f"Gaya gesek statis maksimum (Fs max): **{fs_max:.2f} N**")
+st.write(f"Gaya gesek kinetis (Fk): **{fk:.2f} N**")
+st.write(f"Gaya gesek yang bekerja: **{gaya_gesek:.2f} N**")
 st.info(status)
 
 # =========================
-# GRAFIK GAYA vs GAYA TARIK
+# GRAFIK (TANPA MATPLOTLIB)
 # =========================
 st.subheader("Grafik Hubungan Gaya Tarik dan Gaya Gesek")
 
@@ -64,23 +61,21 @@ for F_i in F_range:
     else:
         gaya_gesek_range.append(fk)
 
-fig, ax = plt.subplots()
-ax.plot(F_range, gaya_gesek_range)
-ax.axvline(fs_max)
-ax.set_xlabel("Gaya Tarik (N)")
-ax.set_ylabel("Gaya Gesek (N)")
-ax.set_title("Gaya Gesek terhadap Gaya Tarik")
-ax.grid(True)
+grafik_data = {
+    "Gaya Tarik (N)": F_range,
+    "Gaya Gesek (N)": gaya_gesek_range
+}
 
-st.pyplot(fig)
+st.line_chart(grafik_data)
 
 # =========================
-# KESIMPULAN SINGKAT
+# KESIMPULAN
 # =========================
 st.subheader("Kesimpulan")
+
 if F < fs_max:
     st.write(
-        "Gaya tarik belum mampu mengatasi gaya gesek statis maksimum, "
+        "Gaya tarik belum cukup untuk mengatasi gaya gesek statis maksimum, "
         "sehingga benda masih dalam keadaan diam."
     )
 else:
