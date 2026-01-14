@@ -7,7 +7,8 @@ import streamlit as st
 def hitung_gaya(massa, percepatan):
     return massa * percepatan
 
-from utils.ai_engine import tanya_ai
+def tanya_ai(pertanyaan):
+    return "Fitur AI belum diaktifkan."
 
 st.title("Praktikum Online: Gaya Gesek")
 
@@ -37,5 +38,6 @@ if pertanyaan:
     """
     jawaban = tanya_ai(system_prompt, user_prompt)
     st.success(jawaban)
+
 
 
