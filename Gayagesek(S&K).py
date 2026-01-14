@@ -1,6 +1,21 @@
 import sys
 import os
 
+def tanya_ai(system_prompt, user_prompt):
+    """
+    Fungsi AI sederhana (placeholder).
+    Untuk sementara hanya menggabungkan prompt.
+    """
+
+    jawaban = (
+        "📘 Penjelasan AI:\n\n"
+        + system_prompt
+        + "\n\nPertanyaan:\n"
+        + user_prompt
+    )
+
+    return jawaban
+
 sys.path.append(os.path.dirname(__file__))
 
 import streamlit as st
@@ -57,6 +72,7 @@ statis dan kinetis secara sederhana dan mudah dipahami.
     """
     jawaban = tanya_ai(system_prompt, user_prompt)
     st.success(jawaban)
+
 
 
 
