@@ -41,7 +41,10 @@ st.info(status)
 pertanyaan = st.text_input("Tanyakan sesuatu tentang percobaan ini:")
 
 if pertanyaan:
-    system_prompt = open("prompt/system.txt").read()
+    system_prompt = """
+Anda adalah asisten fisika yang membantu menjelaskan konsep gaya gesek
+statis dan kinetis secara sederhana dan mudah dipahami.
+"""
     user_prompt = f"""
     Massa: {m} kg
     μs: {mu_s}
@@ -54,6 +57,7 @@ if pertanyaan:
     """
     jawaban = tanya_ai(system_prompt, user_prompt)
     st.success(jawaban)
+
 
 
 
