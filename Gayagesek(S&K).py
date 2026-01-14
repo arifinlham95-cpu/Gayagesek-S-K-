@@ -1,3 +1,8 @@
+import sys
+import os
+
+sys.path.append(os.path.dirname(__file__))
+
 import streamlit as st
 from utils.physics import hitung_gaya
 from utils.ai_engine import tanya_ai
@@ -30,3 +35,4 @@ if pertanyaan:
     """
     jawaban = tanya_ai(system_prompt, user_prompt)
     st.success(jawaban)
+
