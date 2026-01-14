@@ -4,7 +4,9 @@ import os
 sys.path.append(os.path.dirname(__file__))
 
 import streamlit as st
-from utils.physics import hitung_gaya
+def hitung_gaya(massa, percepatan):
+    return massa * percepatan
+
 from utils.ai_engine import tanya_ai
 
 st.title("Praktikum Online: Gaya Gesek")
@@ -35,4 +37,5 @@ if pertanyaan:
     """
     jawaban = tanya_ai(system_prompt, user_prompt)
     st.success(jawaban)
+
 
