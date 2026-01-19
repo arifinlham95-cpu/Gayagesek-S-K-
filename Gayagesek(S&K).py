@@ -1,5 +1,6 @@
 import streamlit as st
 import numpy as np
+import pandas as pd
 
 # =========================
 # FUNGSI FISIKA
@@ -26,7 +27,8 @@ st.title("Praktikum Online: Gaya Gesek Statis dan Kinetis")
 
 st.markdown("""
 Aplikasi ini mensimulasikan **gaya gesek statis dan kinetis**
-pada sebuah benda yang ditarik di atas permukaan datar.
+pada sebuah benda yang ditarik di atas permukaan datar,
+lengkap dengan **visualisasi arah gaya dan balok**.
 """)
 
 # Input parameter
@@ -48,7 +50,7 @@ st.write(f"Gaya gesek yang bekerja: **{gaya_gesek:.2f} N**")
 st.info(status)
 
 # =========================
-# GRAFIK (TANPA MATPLOTLIB)
+# GRAFIK NUMERIK
 # =========================
 st.subheader("Grafik Hubungan Gaya Tarik dan Gaya Gesek")
 
@@ -61,12 +63,71 @@ for F_i in F_range:
     else:
         gaya_gesek_range.append(fk)
 
-grafik_data = {
+st.line_chart({
     "Gaya Tarik (N)": F_range,
     "Gaya Gesek (N)": gaya_gesek_range
-}
+})
 
-st.line_chart(grafik_data)
+# =========================
+# VISUALISASI SIMULASI BALOK & GAYA
+# =========================
+st.subheader("Visualisasi Simulasi Gaya")
+
+# Skala visual (agar panah tidak terlalu panjang)
+skala = max(F, gaya_gesek, 1)
+Ft_visual = F / skala
+Fg_visual = gaya_gesek / skala
+
+data = pd.DataFrame({
+    "x": [0, 0],
+    "y": [0, 0],
+    "dx": [Ft_visual, -Fg_visual],
+    "dy": [0, 0],
+    "jenis": ["Gaya Tarik", "Gaya Gesek"]
+})
+
+st.vega_lite_chart(
+    data,
+    {
+        "width": 500,
+        "height": 200,
+        "layer": [
+            # Balok
+            {
+                "mark": {"type": "rect", "width": 60, "height": 40},
+                "encoding": {
+                    "x": {"value": 250},
+                    "y": {"value": 100},
+                    "color": {"value": "steelblue"}
+                }
+            },
+            # Panah gaya
+            {
+                "mark": {"type": "rule", "strokeWidth": 4},
+                "encoding": {
+                    "x": {"value": 250},
+                    "y": {"value": 100},
+                    "x2": {
+                        "field": "dx",
+                        "type": "quantitative",
+                        "scale": {"domain": [-1, 1], "range": [100, 400]}
+                    },
+                    "y2": {"value": 100},
+                    "color": {
+                        "field": "jenis",
+                        "type": "nominal",
+                        "scale": {
+                            "domain": ["Gaya Tarik", "Gaya Gesek"],
+                            "range": ["green", "red"]
+                        }
+                    }
+                }
+            }
+        ]
+    }
+)
+
+st.caption("Panah hijau: gaya tarik | Panah merah: gaya gesek")
 
 # =========================
 # KESIMPULAN
