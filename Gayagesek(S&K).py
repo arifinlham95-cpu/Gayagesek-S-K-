@@ -3,87 +3,87 @@ import numpy as np
 import pandas as pd
 
 # =========================
-# FUNGSI FISIKA
+# PHYSICS FUNCTION
 # =========================
-def hitung_gaya(m, mu_s, mu_k, F):
+def calculate_force(m, mu_s, mu_k, F):
     g = 9.8
     fs_max = mu_s * m * g
     fk = mu_k * m * g
 
     if F < fs_max:
-        status = "Benda tidak bergerak (gaya gesek statis)"
-        gaya_gesek = F
+        status = "The object does not move (static friction)"
+        friction_force = F
     else:
-        status = "Benda bergerak (gaya gesek kinetis)"
-        gaya_gesek = fk
+        status = "The object moves (kinetic friction)"
+        friction_force = fk
 
-    return fs_max, fk, gaya_gesek, status
+    return fs_max, fk, friction_force, status
 
 
 # =========================
 # STREAMLIT UI
 # =========================
-st.title("Praktikum Online: Gaya Gesek Statis dan Kinetis")
+st.title("Online Practicum: Static and Kinetic Friction Forces")
 
 st.markdown("""
-Aplikasi ini mensimulasikan **gaya gesek statis dan kinetis**
-pada sebuah benda yang ditarik di atas permukaan datar,
-lengkap dengan **visualisasi arah gaya dan balok**.
+This application simulates **static and kinetic friction forces**
+acting on an object being pulled across a flat surface,
+complete with **force direction visualization and block simulation**.
 """)
 
-# Input parameter
-m = st.number_input("Massa benda (kg)", min_value=0.1, value=2.0)
-mu_s = st.number_input("Koefisien gesek statis (μs)", min_value=0.0, value=0.5)
-mu_k = st.number_input("Koefisien gesek kinetis (μk)", min_value=0.0, value=0.3)
-F = st.number_input("Gaya tarik (N)", min_value=0.0, value=10.0)
+# Input parameters
+m = st.number_input("Object Mass (kg)", min_value=0.1, value=2.0)
+mu_s = st.number_input("Static Friction Coefficient (μs)", min_value=0.0, value=0.5)
+mu_k = st.number_input("Kinetic Friction Coefficient (μk)", min_value=0.0, value=0.3)
+F = st.number_input("Applied Force (N)", min_value=0.0, value=10.0)
 
-# Perhitungan
-fs_max, fk, gaya_gesek, status = hitung_gaya(m, mu_s, mu_k, F)
+# Calculation
+fs_max, fk, friction_force, status = calculate_force(m, mu_s, mu_k, F)
 
 # =========================
-# OUTPUT TEKS
+# OUTPUT TEXT
 # =========================
-st.subheader("Hasil Perhitungan")
-st.write(f"Gaya gesek statis maksimum (Fs max): **{fs_max:.2f} N**")
-st.write(f"Gaya gesek kinetis (Fk): **{fk:.2f} N**")
-st.write(f"Gaya gesek yang bekerja: **{gaya_gesek:.2f} N**")
+st.subheader("Calculation Results")
+st.write(f"Maximum Static Friction (Fs max): **{fs_max:.2f} N**")
+st.write(f"Kinetic Friction (Fk): **{fk:.2f} N**")
+st.write(f"Friction Force Acting: **{friction_force:.2f} N**")
 st.info(status)
 
 # =========================
-# GRAFIK NUMERIK
+# NUMERICAL GRAPH
 # =========================
-st.subheader("Grafik Hubungan Gaya Tarik dan Gaya Gesek")
+st.subheader("Graph of Applied Force vs Friction Force")
 
 F_range = np.linspace(0, fs_max * 1.5, 100)
-gaya_gesek_range = []
+friction_range = []
 
 for F_i in F_range:
     if F_i < fs_max:
-        gaya_gesek_range.append(F_i)
+        friction_range.append(F_i)
     else:
-        gaya_gesek_range.append(fk)
+        friction_range.append(fk)
 
 st.line_chart({
-    "Gaya Tarik (N)": F_range,
-    "Gaya Gesek (N)": gaya_gesek_range
+    "Applied Force (N)": F_range,
+    "Friction Force (N)": friction_range
 })
 
 # =========================
-# VISUALISASI SIMULASI BALOK & GAYA
+# BLOCK & FORCE VISUALIZATION
 # =========================
-st.subheader("Visualisasi Simulasi Gaya")
+st.subheader("Force Simulation Visualization")
 
-# Skala visual (agar panah tidak terlalu panjang)
-skala = max(F, gaya_gesek, 1)
-Ft_visual = F / skala
-Fg_visual = gaya_gesek / skala
+# Visual scale (prevent arrows from becoming too long)
+scale = max(F, friction_force, 1)
+Ft_visual = F / scale
+Ff_visual = friction_force / scale
 
 data = pd.DataFrame({
     "x": [0, 0],
     "y": [0, 0],
-    "dx": [Ft_visual, -Fg_visual],
+    "dx": [Ft_visual, -Ff_visual],
     "dy": [0, 0],
-    "jenis": ["Gaya Tarik", "Gaya Gesek"]
+    "type": ["Applied Force", "Friction Force"]
 })
 
 st.vega_lite_chart(
@@ -92,7 +92,7 @@ st.vega_lite_chart(
         "width": 500,
         "height": 200,
         "layer": [
-            # Balok
+            # Block
             {
                 "mark": {"type": "rect", "width": 60, "height": 40},
                 "encoding": {
@@ -101,7 +101,7 @@ st.vega_lite_chart(
                     "color": {"value": "steelblue"}
                 }
             },
-            # Panah gaya
+            # Force arrows
             {
                 "mark": {"type": "rule", "strokeWidth": 4},
                 "encoding": {
@@ -114,10 +114,10 @@ st.vega_lite_chart(
                     },
                     "y2": {"value": 100},
                     "color": {
-                        "field": "jenis",
+                        "field": "type",
                         "type": "nominal",
                         "scale": {
-                            "domain": ["Gaya Tarik", "Gaya Gesek"],
+                            "domain": ["Applied Force", "Friction Force"],
                             "range": ["green", "red"]
                         }
                     }
@@ -127,20 +127,20 @@ st.vega_lite_chart(
     }
 )
 
-st.caption("Panah hijau: gaya tarik | Panah merah: gaya gesek")
+st.caption("Green arrow: applied force | Red arrow: friction force")
 
 # =========================
-# KESIMPULAN
+# CONCLUSION
 # =========================
-st.subheader("Kesimpulan")
+st.subheader("Conclusion")
 
 if F < fs_max:
     st.write(
-        "Gaya tarik belum cukup untuk mengatasi gaya gesek statis maksimum, "
-        "sehingga benda masih dalam keadaan diam."
+        "The applied force is not enough to overcome the maximum static friction, "
+        "so the object remains stationary."
     )
 else:
     st.write(
-        "Gaya tarik telah melebihi gaya gesek statis maksimum, "
-        "sehingga benda bergerak dan gaya gesek yang bekerja adalah gaya gesek kinetis."
+        "The applied force exceeds the maximum static friction, "
+        "so the object begins to move and the acting friction becomes kinetic friction."
     )
